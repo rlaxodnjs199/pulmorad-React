@@ -54,6 +54,7 @@ import store from './store';
 /** Contexts */
 import WhiteLabelingContext from './context/WhiteLabelingContext';
 import UserManagerContext from './context/UserManagerContext';
+import UserAuthContext from './context/UserAuthContext';
 import { AppProvider, useAppContext, CONTEXTS } from './context/AppContext';
 
 /** ~~~~~~~~~~~~~ Application Setup */
@@ -81,6 +82,19 @@ window.ohif.app = {
 };
 
 class App extends Component {
+  state = {
+    username: '',
+    is_active: false,
+  };
+
+  setUser = user => {
+    this.setState({ username: user, is_active: true });
+  };
+
+  deleteUser = () => {
+    this.setState({ username: '', is_active: false });
+  };
+
   static propTypes = {
     config: PropTypes.oneOfType([
       PropTypes.func,
@@ -204,17 +218,28 @@ class App extends Component {
         <Provider store={store}>
           <AppProvider config={this._appConfig}>
             <I18nextProvider i18n={i18n}>
-              <Router basename={routerBasename}>
-                <WhiteLabelingContext.Provider value={whiteLabeling}>
-                  <SnackbarProvider service={UINotificationService}>
-                    <DialogProvider service={UIDialogService}>
-                      <ModalProvider modal={OHIFModal} service={UIModalService}>
-                        <OHIFStandaloneViewer />
-                      </ModalProvider>
-                    </DialogProvider>
-                  </SnackbarProvider>
-                </WhiteLabelingContext.Provider>
-              </Router>
+              <UserAuthContext.Provider
+                value={{
+                  state: this.state,
+                  setUser: e => this.setUser(e),
+                  deleteUser: this.deleteUser,
+                }}
+              >
+                <Router basename={routerBasename}>
+                  <WhiteLabelingContext.Provider value={whiteLabeling}>
+                    <SnackbarProvider service={UINotificationService}>
+                      <DialogProvider service={UIDialogService}>
+                        <ModalProvider
+                          modal={OHIFModal}
+                          service={UIModalService}
+                        >
+                          <OHIFStandaloneViewer />
+                        </ModalProvider>
+                      </DialogProvider>
+                    </SnackbarProvider>
+                  </WhiteLabelingContext.Provider>
+                </Router>
+              </UserAuthContext.Provider>
             </I18nextProvider>
           </AppProvider>
         </Provider>

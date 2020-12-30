@@ -33,7 +33,7 @@ function Header(props) {
         onClick: () =>
           show({
             content: AboutContent,
-            title: t('OHIF Viewer - About'),
+            title: t('Pulmorad - About'),
           }),
       },
       {
@@ -82,7 +82,7 @@ function Header(props) {
             <Link
               className="header-btn header-studyListLinkSection"
               to={{
-                pathname: linkPath,
+                pathname: '/studylist',
                 state: { studyLink: location.pathname },
               }}
             >
