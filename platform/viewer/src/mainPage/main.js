@@ -14,7 +14,7 @@ import { ThemeProvider } from '@material-ui/styles';
 import TextField from '@material-ui/core/TextField';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
-import { login } from './login/loginService.js';
+import Paper from '@material-ui/core/Paper';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import { useHistory } from 'react-router-dom';
@@ -69,29 +69,26 @@ const useStyles = makeStyles(theme => ({
   heroButtons: {
     marginTop: theme.spacing(4),
   },
-  cardGrid: {
-    paddingTop: theme.spacing(8),
-    paddingBottom: theme.spacing(8),
-  },
-  card: {
-    height: '100%',
+  loginForm: {
     display: 'flex',
-    flexDirection: 'column',
-  },
-  cardMedia: {
-    paddingTop: '56.25%', // 16:9
-  },
-  cardContent: {
-    flexGrow: 1,
+    justifyContent: 'center',
   },
   paper: {
     display: 'flex',
     justifyContent: 'center',
+    alignItems: 'center',
     '& > *': {
-      margin: theme.spacing(2),
-      width: theme.spacing(32),
-      height: theme.spacing(40),
+      background: 'linear-gradient(45deg, #b0bec5 30%, #cfd8dc 90%)',
+      margin: theme.spacing(1.2),
+      width: theme.spacing(18),
+      height: theme.spacing(18),
     },
+  },
+  paperButton: {
+    height: '100%',
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'center',
   },
   form: {
     width: '100%', // Fix IE 11 issue.
@@ -108,7 +105,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function MainPage() {
-  const userInfo = useContext(UserAuthContext);
+  const userAuth = useContext(UserAuthContext);
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
   const history = useHistory();
@@ -118,7 +115,8 @@ export default function MainPage() {
   const [formvalid, setFormvalid] = useState(true);
 
   const logout = () => {
-    userInfo.deleteUser();
+    handleMenuClose();
+    userAuth.logout();
   };
 
   const handleMenuClick = event => {
@@ -129,28 +127,28 @@ export default function MainPage() {
     setAnchorEl(null);
   };
 
-  const clickImageViewer = () => {
-    history.push('/studylist');
+  const handleOhifButtonClick = () => {
+    window.location.href = 'http://snuhpia.org:10080/studylist/';
   };
 
-  const clickAdmin = () => {
+  const handleOrthancButtonClick = () => {
     window.location.href = 'http://snuhpia.org:10080/orthanc-admin/';
   };
 
-  async function login_attempt() {
-    if (await login(username, password)) {
-      //console.log('login success');
-      userInfo.setUser(username);
-      history.push('/studylist');
-    } else {
-      //console.log('login failed');
-      setFormvalid(false);
-    }
-  }
+  const handleCytomineButtonClick = () => {
+    window.location.href = 'http://snuhpia.org:10080/cytomine/';
+  };
+
+  const handleNAS1ButtonClick = () => {
+    window.location.href = 'http://210.117.213.54:64431/';
+  };
+
+  const handleNAS2ButtonClick = () => {
+    window.location.href = 'http://210.117.213.54:64647/';
+  };
 
   const handleSubmit = event => {
-    event.preventDefault();
-    login_attempt();
+    userAuth.login(event, username, password);
   };
 
   return (
@@ -164,14 +162,14 @@ export default function MainPage() {
               <Typography variant="h6" color="inherit" style={{ flex: 1 }}>
                 SNUHPIA
               </Typography>
-              {userInfo.state.is_active && (
+              {userAuth.state.logged_in && (
                 <Button
                   color="inherit"
                   aria-controls="simple-menu"
                   aria-haspopup="true"
                   onClick={handleMenuClick}
                 >
-                  {userInfo.state.username}
+                  {userAuth.state.username}
                 </Button>
               )}
               <Menu
@@ -182,11 +180,9 @@ export default function MainPage() {
                 onClose={handleMenuClose}
               >
                 <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-                <MenuItem onClick={clickImageViewer}>ImageViewer</MenuItem>
-                <MenuItem onClick={clickAdmin}>OrthancAdmin</MenuItem>
                 <MenuItem onClick={logout}>Logout</MenuItem>
               </Menu>
-              {!userInfo.state.is_active && <span>Sign In Required</span>}
+              {!userAuth.state.logged_in && <span>Sign In Required</span>}
             </Toolbar>
           </AppBar>
           <main>
@@ -226,14 +222,58 @@ export default function MainPage() {
                 </div>
               </Container>
             </div>
-            {!userInfo.state.is_active && (
-              <Container component="main" maxWidth="xs">
+            {userAuth.state.logged_in && (
+              <Container component="main" maxWidth="sm">
                 <div className={classes.paper}>
+                  <Paper elevation={3}>
+                    <div className={classes.paperButton}>
+                      <Button size="medium" onClick={handleOhifButtonClick}>
+                        OHIF <br /> VIEWER
+                      </Button>
+                    </div>
+                  </Paper>
+                  <Paper elevation={3}>
+                    <div className={classes.paperButton}>
+                      <Button size="medium" onClick={handleOrthancButtonClick}>
+                        ORTHANC <br /> ADMIN
+                      </Button>
+                    </div>
+                  </Paper>
+                  <Paper elevation={3}>
+                    <div className={classes.paperButton}>
+                      <Button size="medium" onClick={handleCytomineButtonClick}>
+                        CYTOMINE
+                      </Button>
+                    </div>
+                  </Paper>
+                </div>
+                <div className={classes.paper}>
+                  <Paper elevation={3}>
+                    <div className={classes.paperButton}>
+                      <Button size="medium" onClick={handleNAS1ButtonClick}>
+                        NAS1
+                      </Button>
+                    </div>
+                  </Paper>
+                  <Paper elevation={3}>
+                    <div className={classes.paperButton}>
+                      <Button size="medium" onClick={handleNAS2ButtonClick}>
+                        NAS2
+                      </Button>
+                    </div>
+                  </Paper>
+                  <Paper elevation={3} />
+                </div>
+              </Container>
+            )}
+            {!userAuth.state.logged_in && (
+              <Container component="main" maxWidth="xs">
+                <div className={classes.loginForm}>
                   <form
                     className={classes.form}
                     method="post"
                     noValidate
-                    onSubmit={handleSubmit}
+                    onSubmit={e => handleSubmit(e)}
                   >
                     <TextField
                       variant="outlined"

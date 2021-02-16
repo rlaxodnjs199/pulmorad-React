@@ -22,9 +22,47 @@ import UserManagerContext from '../context/UserManagerContext';
 import WhiteLabelingContext from '../context/WhiteLabelingContext';
 import AppContext from '../context/AppContext';
 
+// Dropdown Button
+import { makeStyles } from '@material-ui/core/styles';
+import InputLabel from '@material-ui/core/InputLabel';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import FormControl from '@material-ui/core/FormControl';
+import NativeSelect from '@material-ui/core/NativeSelect';
+
+import Axios from 'axios';
+import Button from '@material-ui/core/Button';
+import ProjectManageDialog from './ProjectManageDialog.js';
+
+import Snackbar from '@material-ui/core/Snackbar';
+import Alert from '@material-ui/lab/Alert';
+
+const useStyles = makeStyles(theme => ({
+  formControl: {
+    color: 'white',
+    marginTop: theme.spacing(0.5),
+    marginLeft: theme.spacing(2),
+    minWidth: 120,
+  },
+  selectEmpty: {
+    color: 'white',
+  },
+  snackBar: {
+    width: '100%',
+    '& > * + *': {
+      marginTop: theme.spacing(2),
+    },
+  },
+}));
+
 const { urlUtil: UrlUtil } = OHIF.utils;
 
+const url =
+  process.env.NODE_ENV == 'production'
+    ? 'https://snuhpia.org/core/'
+    : 'https://snuhpia.org/core/';
+
 function StudyListRoute(props) {
+  const classes = useStyles();
   const { history, server, user, studyListFunctionsEnabled } = props;
   const [t] = useTranslation('Common');
   // ~~ STATE
@@ -53,7 +91,7 @@ function StudyListRoute(props) {
     error: null,
   });
   const [activeModalId, setActiveModalId] = useState(null);
-  const [rowsPerPage, setRowsPerPage] = useState(25);
+  const [rowsPerPage, setRowsPerPage] = useState(100);
   const [pageNumber, setPageNumber] = useState(0);
   const appContext = useContext(AppContext);
   // ~~ RESPONSIVE
@@ -78,6 +116,43 @@ function StudyListRoute(props) {
     setActiveModalId('DicomStorePicker');
   }
 
+  // Construct project list dictionary from Django response and Orthanc response using UID mapping
+  const [project, setProject] = useState('INIT');
+  const [projectDict, setProjectDict] = useState({});
+  const constructStudyDictByProject = response => {
+    let UIDProjectMapping = {};
+    let studyListByProject = {};
+    Axios.get(url + 'study_list/').then(studyData => {
+      for (let study of studyData.data) {
+        UIDProjectMapping[study.studyUID] = study.projectName;
+      }
+      studyListByProject['All'] = [];
+      studyListByProject['Undefined'] = [];
+      for (let study of response) {
+        studyListByProject['All'].push(study);
+        if (UIDProjectMapping.hasOwnProperty(study.studyInstanceUid)) {
+          let projectName = UIDProjectMapping[study.studyInstanceUid];
+          if (projectName in studyListByProject) {
+            studyListByProject[projectName].push(study);
+          } else {
+            studyListByProject[projectName] = [study];
+          }
+        } else {
+          studyListByProject['Undefined'].push(study);
+        }
+      }
+    });
+    setProjectDict(studyListByProject);
+  };
+
+  // projectList from Django
+  const [projectList, setProjectList] = useState([]);
+  const getProjectList = () => {
+    return Axios.get(url + 'project_list/').then(response => {
+      setProjectList(response.data);
+    });
+  };
+
   // Called when relevant state/props are updated
   // Watches filters and sort, debounced
   useEffect(
@@ -94,7 +169,8 @@ function StudyListRoute(props) {
             pageNumber,
             displaySize
           );
-
+          getProjectList();
+          constructStudyDictByProject(response);
           setStudies(response);
           setSearchStatus({ error: null, isSearchingForStudies: false });
         } catch (error) {
@@ -127,6 +203,40 @@ function StudyListRoute(props) {
   //     studies: null,
   //   });
   // }
+
+  const handleProjectChange = event => {
+    event.preventDefault();
+    setProject(event.target.value);
+  };
+
+  const [openSnackBar, setSnackBar] = useState(false);
+
+  const handleSnackBarClose = event => {
+    event.stopPropagation();
+    setSnackBar(false);
+  };
+
+  const selectProject = () => {
+    if (project != 'INIT') {
+      if (!(project in projectDict)) {
+        setSnackBar(true);
+      } else {
+        setStudies(projectDict[project]);
+      }
+    }
+  };
+
+  useEffect(() => {
+    selectProject(), [handleProjectChange];
+  });
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const openDialog = () => {
+    setDialogOpen(true);
+  };
+  const closeDialog = () => {
+    setDialogOpen(false);
+  };
 
   const onDrop = async acceptedFiles => {
     try {
@@ -227,10 +337,50 @@ function StudyListRoute(props) {
         )}
       </WhiteLabelingContext.Consumer>
       <div className="study-list-header">
-        <div className="header">
-          <h1 style={{ fontWeight: 300, fontSize: '22px' }}>
-            {t('StudyList')}
+        <div className="header" style={{ display: 'flex' }}>
+          <h1
+            style={{
+              fontWeight: 300,
+              fontSize: '22px',
+              paddingTop: '0.5vh',
+              paddingLeft: '0.5vh',
+            }}
+          >
+            StudyList :
           </h1>
+          <FormControl className={classes.formControl}>
+            <InputLabel htmlFor="age-native-helper" style={{ color: 'white' }}>
+              ProjectList
+            </InputLabel>
+            <NativeSelect
+              value={project}
+              onChange={handleProjectChange}
+              inputProps={{
+                name: 'age',
+                id: 'age-native-helper',
+              }}
+              style={{ color: 'white' }}
+            >
+              <option
+                key={'All'}
+                aria-label="None"
+                style={{ backgroundColor: '#2c363f' }}
+              >
+                All
+              </option>
+              {projectList.map(project => (
+                <option
+                  key={project.projectName}
+                  style={{ backgroundColor: '#2c363f' }}
+                >
+                  {project.projectName}
+                </option>
+              ))}
+            </NativeSelect>
+            <FormHelperText style={{ color: 'white' }}>
+              Select Project
+            </FormHelperText>
+          </FormControl>
         </div>
         <div className="actions">
           {studyListFunctionsEnabled && healthCareApiButtons}
@@ -239,6 +389,22 @@ function StudyListRoute(props) {
               onImport={() => setActiveModalId('DicomFilesUploader')}
             />
           )}
+          <Button
+            variant="contained"
+            style={{ margin: '2vh' }}
+            onClick={openDialog}
+          >
+            <span>Manage Project</span>
+            <ProjectManageDialog
+              open={dialogOpen}
+              onClose={closeDialog}
+              projectList={projectList}
+              projectDict={projectDict}
+              setProjectDict={setProjectDict}
+              getProject={getProjectList}
+              constructStudyDictByProject={constructStudyDictByProject}
+            />
+          </Button>
           <span className="study-count">{studies.length}</span>
         </div>
       </div>
@@ -274,6 +440,17 @@ function StudyListRoute(props) {
           rowsPerPage={rowsPerPage}
           recordCount={studies.length}
         />
+      </div>
+      <div className={classes.snackBar}>
+        <Snackbar
+          open={openSnackBar}
+          autoHideDuration={6000}
+          onClose={handleSnackBarClose}
+        >
+          <Alert severity="warning" onClose={handleSnackBarClose}>
+            The project you select is empty!
+          </Alert>
+        </Snackbar>
       </div>
     </>
   );

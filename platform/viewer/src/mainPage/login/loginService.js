@@ -1,13 +1,10 @@
 import Axios from 'axios';
-import Cookies from 'js-cookie';
 
 export function login(username, password) {
-  const csrftoken = Cookies.get('csrftoken');
   const options = {
     url: 'http://snuhpia.org:8000/api/v1/user/authenticate/',
     method: 'POST',
     headers: {
-      'X-CSRFToken': csrftoken,
       'Content-Type': 'application/json',
     },
     data: {

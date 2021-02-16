@@ -8,7 +8,7 @@ function OHIFLogo() {
       target="_blank"
       rel="noopener noreferrer"
       className="header-brand"
-      href="http://snuhpia.org:10080"
+      href="https://lamis.snuhpia.org"
     >
       <img src={Logo} alt="PULMORAD" className="header-logo-text" />
     </a>

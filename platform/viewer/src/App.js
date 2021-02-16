@@ -29,6 +29,8 @@ import {
   redux as reduxOHIF,
 } from '@ohif/core';
 
+import Axios from 'axios';
+
 import i18n from '@ohif/i18n';
 
 // TODO: This should not be here
@@ -82,19 +84,6 @@ window.ohif.app = {
 };
 
 class App extends Component {
-  state = {
-    username: '',
-    is_active: false,
-  };
-
-  setUser = user => {
-    this.setState({ username: user, is_active: true });
-  };
-
-  deleteUser = () => {
-    this.setState({ username: '', is_active: false });
-  };
-
   static propTypes = {
     config: PropTypes.oneOfType([
       PropTypes.func,
@@ -169,7 +158,53 @@ class App extends Component {
     _initHotkeys(appConfigHotkeys);
     _initServers(servers);
     initWebWorkers();
+
+    this.state = {
+      username: '',
+      logged_in: localStorage.getItem('token') ? true : false,
+    };
   }
+
+  componentDidMount() {
+    if (this.state.logged_in) {
+      fetch('https://snuhpia.org/core/current_user/', {
+        headers: {
+          Authorization: `JWT ${localStorage.getItem('token')}`,
+        },
+      })
+        .then(res => res.json())
+        .then(json => {
+          this.setState({
+            username: json.username,
+          });
+        });
+    }
+  }
+
+  handle_login = (e, username, password) => {
+    e.preventDefault();
+    let data = { username: username, password: password };
+    fetch('https://snuhpia.org/core/token-auth/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+      .then(res => res.json())
+      .then(json => {
+        localStorage.setItem('token', json.token);
+        this.setState({
+          username: json.user.username,
+          logged_in: true,
+        });
+      });
+  };
+
+  handle_logout = () => {
+    localStorage.removeItem('token');
+    this.setState({ logged_in: false, username: '' });
+  };
 
   render() {
     const { whiteLabeling, routerBasename } = this._appConfig;
@@ -221,8 +256,9 @@ class App extends Component {
               <UserAuthContext.Provider
                 value={{
                   state: this.state,
-                  setUser: e => this.setUser(e),
-                  deleteUser: this.deleteUser,
+                  login: (e, username, password) =>
+                    this.handle_login(e, username, password),
+                  logout: this.handle_logout,
                 }}
               >
                 <Router basename={routerBasename}>
