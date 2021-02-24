@@ -29,7 +29,8 @@ import {
   redux as reduxOHIF,
 } from '@ohif/core';
 
-import Axios from 'axios';
+import axios from 'axios';
+import FormData from 'form-data';
 
 import i18n from '@ohif/i18n';
 
@@ -167,15 +168,15 @@ class App extends Component {
 
   componentDidMount() {
     if (this.state.logged_in) {
-      fetch('https://snuhpia.org/core/current_user/', {
-        headers: {
-          Authorization: `JWT ${localStorage.getItem('token')}`,
-        },
-      })
-        .then(res => res.json())
-        .then(json => {
+      axios
+        .get('http://localhost:8000/user/me', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        })
+        .then(response => {
           this.setState({
-            username: json.username,
+            username: response.data.username,
           });
         });
     }
@@ -183,19 +184,22 @@ class App extends Component {
 
   handle_login = (e, username, password) => {
     e.preventDefault();
-    let data = { username: username, password: password };
-    fetch('https://snuhpia.org/core/token-auth/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    })
-      .then(res => res.json())
-      .then(json => {
-        localStorage.setItem('token', json.token);
+    const form = new FormData();
+    const formHeaders = form.getHeaders;
+
+    form.append('username', username);
+    form.append('password', password);
+
+    axios
+      .post('http://localhost:8000/token', form, {
+        headers: {
+          ...formHeaders,
+        },
+      })
+      .then(response => {
+        localStorage.setItem('token', response.data.access_token);
         this.setState({
-          username: json.user.username,
+          username: response.data.username,
           logged_in: true,
         });
       });
