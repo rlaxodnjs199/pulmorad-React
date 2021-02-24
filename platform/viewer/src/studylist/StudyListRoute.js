@@ -56,10 +56,10 @@ const useStyles = makeStyles(theme => ({
 
 const { urlUtil: UrlUtil } = OHIF.utils;
 
-const url =
+const FastAPI_URL =
   process.env.NODE_ENV == 'production'
-    ? 'https://snuhpia.org/core/'
-    : 'https://snuhpia.org/core/';
+    ? process.env.PROD_FastAPI_URL
+    : process.env.DEV_FastAPI_URL;
 
 function StudyListRoute(props) {
   const classes = useStyles();
@@ -122,7 +122,7 @@ function StudyListRoute(props) {
   const constructStudyDictByProject = response => {
     let UIDProjectMapping = {};
     let studyListByProject = {};
-    Axios.get(url + 'study_list/').then(studyData => {
+    Axios.get(FastAPI_URL + 'study_list/').then(studyData => {
       for (let study of studyData.data) {
         UIDProjectMapping[study.studyUID] = study.projectName;
       }
@@ -148,7 +148,7 @@ function StudyListRoute(props) {
   // projectList from Django
   const [projectList, setProjectList] = useState([]);
   const getProjectList = () => {
-    return Axios.get(url + 'project_list/').then(response => {
+    return Axios.get(FastAPI_URL + 'project_list/').then(response => {
       setProjectList(response.data);
     });
   };

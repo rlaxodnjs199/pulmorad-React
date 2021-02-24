@@ -84,6 +84,11 @@ window.ohif.app = {
   extensionManager,
 };
 
+const FastAPI_URL =
+  process.env.NODE_ENV == 'production'
+    ? process.env.PROD_FastAPI_URL
+    : process.env.DEV_FastAPI_URL;
+
 class App extends Component {
   static propTypes = {
     config: PropTypes.oneOfType([
@@ -169,7 +174,7 @@ class App extends Component {
   componentDidMount() {
     if (this.state.logged_in) {
       axios
-        .get('http://localhost:8000/user/me', {
+        .get(FastAPI_URL + '/user/me', {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
@@ -191,7 +196,7 @@ class App extends Component {
     form.append('password', password);
 
     axios
-      .post('http://localhost:8000/token', form, {
+      .post(FastAPI_URL + '/token', form, {
         headers: {
           ...formHeaders,
         },
