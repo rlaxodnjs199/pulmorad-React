@@ -30,6 +30,10 @@ import {
 } from '@ohif/core';
 
 import axios from 'axios';
+<<<<<<< HEAD
+=======
+import FormData from 'form-data';
+>>>>>>> da2cbbbfaa74e23cc8434edd7d27dcaefc1106cd
 
 import i18n from '@ohif/i18n';
 
@@ -82,6 +86,11 @@ window.ohif.app = {
   servicesManager,
   extensionManager,
 };
+
+const FastAPI_URL =
+  process.env.NODE_ENV == 'production'
+    ? process.env.PROD_FastAPI_URL
+    : process.env.DEV_FastAPI_URL;
 
 class App extends Component {
   static propTypes = {
@@ -168,6 +177,7 @@ class App extends Component {
   componentDidMount() {
     if (this.state.logged_in) {
       axios
+<<<<<<< HEAD
         .get('https://snuhpia.org/core/current_user/', {
           headers: {
             Authorization: `JWT ${localStorage.getItem('token')}`,
@@ -175,8 +185,16 @@ class App extends Component {
         })
         .then(res => res.json())
         .then(json => {
+=======
+        .get(FastAPI_URL + '/user/me', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        })
+        .then(response => {
+>>>>>>> da2cbbbfaa74e23cc8434edd7d27dcaefc1106cd
           this.setState({
-            username: json.username,
+            username: response.data.username,
           });
         });
     }
@@ -184,6 +202,7 @@ class App extends Component {
 
   handle_login = (e, username, password) => {
     e.preventDefault();
+<<<<<<< HEAD
     axios
       .post(
         'https://snuhpia.org/core/token-auth/',
@@ -200,8 +219,24 @@ class App extends Component {
       .then(res => res.json())
       .then(json => {
         localStorage.setItem('token', json.token);
+=======
+    const form = new FormData();
+    const formHeaders = form.getHeaders;
+
+    form.append('username', username);
+    form.append('password', password);
+
+    axios
+      .post(FastAPI_URL + '/token', form, {
+        headers: {
+          ...formHeaders,
+        },
+      })
+      .then(response => {
+        localStorage.setItem('token', response.data.access_token);
+>>>>>>> da2cbbbfaa74e23cc8434edd7d27dcaefc1106cd
         this.setState({
-          username: json.user.username,
+          username: response.data.username,
           logged_in: true,
         });
       });
