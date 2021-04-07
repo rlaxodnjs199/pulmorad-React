@@ -48,7 +48,7 @@ function Copyright() {
     <Typography variant="body2" color="textSecondary" align="center">
       {'Copyright © '}
       <Link color="inherit" href="https://material-ui.com/">
-        SNUhpia.org
+        lamis.life
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -114,6 +114,11 @@ export default function MainPage() {
   const [password, setPassword] = useState('');
   const [formvalid, setFormvalid] = useState(true);
 
+  const url =
+    process.env.NODE_ENV == 'production'
+      ? process.env.PROD_ROUTING_URL
+      : process.env.DEV_ROUTING_URL;
+
   const logout = () => {
     handleMenuClose();
     userAuth.logout();
@@ -128,15 +133,15 @@ export default function MainPage() {
   };
 
   const handleOhifButtonClick = () => {
-    window.location.href = 'http://snuhpia.org:10080/studylist/';
+    window.location.href = url + '/studylist/';
   };
 
   const handleOrthancButtonClick = () => {
-    window.location.href = 'http://snuhpia.org:10080/orthanc-admin/';
+    window.location.href = url + '/orthanc-admin/';
   };
 
   const handleCytomineButtonClick = () => {
-    window.location.href = 'http://snuhpia.org:10080/cytomine/';
+    window.location.href = url + '/cytomine/';
   };
 
   const handleNAS1ButtonClick = () => {
@@ -145,6 +150,10 @@ export default function MainPage() {
 
   const handleNAS2ButtonClick = () => {
     window.location.href = 'http://210.117.213.54:64647/';
+  };
+
+  const handleDataTableButtonClick = () => {
+    window.location.href = url + '/dataTable/';
   };
 
   const handleSubmit = event => {
@@ -160,7 +169,7 @@ export default function MainPage() {
             <Toolbar variant="dense">
               <BlurOnIcon className={classes.icon} />
               <Typography variant="h6" color="inherit" style={{ flex: 1 }}>
-                SNUHPIA
+                LAMIS
               </Typography>
               {userAuth.state.logged_in && (
                 <Button
@@ -196,7 +205,7 @@ export default function MainPage() {
                   color="textPrimary"
                   gutterBottom
                 >
-                  Pulmorad.
+                  PulmoRad
                 </Typography>
                 <Typography
                   variant="h5"
@@ -204,7 +213,7 @@ export default function MainPage() {
                   color="textSecondary"
                   paragraph
                 >
-                  SNUH Pulmonary Imaging Assessment
+                  Pulmonary Imaging Assessment
                 </Typography>
                 <div className={classes.heroButtons}>
                   <Grid container spacing={2} justify="center">
@@ -262,7 +271,16 @@ export default function MainPage() {
                       </Button>
                     </div>
                   </Paper>
-                  <Paper elevation={3} />
+                  <Paper elevation={3}>
+                    <div className={classes.paperButton}>
+                      <Button
+                        size="medium"
+                        onClick={handleDataTableButtonClick}
+                      >
+                        Data Table
+                      </Button>
+                    </div>
+                  </Paper>
                 </div>
               </Container>
             )}

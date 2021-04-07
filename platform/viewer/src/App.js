@@ -171,22 +171,6 @@ class App extends Component {
     };
   }
 
-  componentDidMount() {
-    if (this.state.logged_in) {
-      axios
-        .get(FastAPI_URL + '/user/me', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        })
-        .then(response => {
-          this.setState({
-            username: response.data.username,
-          });
-        });
-    }
-  }
-
   handle_login = (e, username, password) => {
     e.preventDefault();
     const form = new FormData();
@@ -196,7 +180,7 @@ class App extends Component {
     form.append('password', password);
 
     axios
-      .post(FastAPI_URL + '/token', form, {
+      .post(FastAPI_URL + '/auth/signin', form, {
         headers: {
           ...formHeaders,
         },

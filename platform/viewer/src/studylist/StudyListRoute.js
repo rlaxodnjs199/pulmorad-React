@@ -24,8 +24,6 @@ import AppContext from '../context/AppContext';
 
 // Dropdown Button
 import { makeStyles } from '@material-ui/core/styles';
-import InputLabel from '@material-ui/core/InputLabel';
-import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import NativeSelect from '@material-ui/core/NativeSelect';
 
@@ -35,6 +33,8 @@ import ProjectManageDialog from './ProjectManageDialog.js';
 
 import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
+
+import { getProjectList } from './projectManager/projectManager.js';
 
 const useStyles = makeStyles(theme => ({
   formControl: {
@@ -145,14 +145,20 @@ function StudyListRoute(props) {
     setProjectDict(studyListByProject);
   };
 
-  // projectList from Django
   const [projectList, setProjectList] = useState([]);
-  const getProjectList = () => {
-    return Axios.get(FastAPI_URL + 'project_list/').then(response => {
-      setProjectList(response.data);
+
+  const updateProjectList = async () => {
+    await getProjectList().then(response => {
+      const projectListFromDB = response.data.map(project => {
+        return project.title;
+      });
+      setProjectList(projectListFromDB);
     });
   };
-
+  // Get the project list from backend on initial render
+  useEffect(() => {
+    updateProjectList();
+  }, []);
   // Called when relevant state/props are updated
   // Watches filters and sort, debounced
   useEffect(
@@ -169,12 +175,9 @@ function StudyListRoute(props) {
             pageNumber,
             displaySize
           );
-          getProjectList();
-          constructStudyDictByProject(response);
           setStudies(response);
           setSearchStatus({ error: null, isSearchingForStudies: false });
         } catch (error) {
-          console.warn(error);
           setSearchStatus({ error: true, isFetching: false });
         }
       };
@@ -337,21 +340,19 @@ function StudyListRoute(props) {
         )}
       </WhiteLabelingContext.Consumer>
       <div className="study-list-header">
-        <div className="header" style={{ display: 'flex' }}>
+        <div
+          className="header"
+          style={{ display: 'flex', alignItems: 'Center' }}
+        >
           <h1
             style={{
               fontWeight: 300,
               fontSize: '22px',
-              paddingTop: '0.5vh',
-              paddingLeft: '0.5vh',
             }}
           >
-            StudyList :
+            Project List :
           </h1>
           <FormControl className={classes.formControl}>
-            <InputLabel htmlFor="age-native-helper" style={{ color: 'white' }}>
-              ProjectList
-            </InputLabel>
             <NativeSelect
               value={project}
               onChange={handleProjectChange}
@@ -369,17 +370,11 @@ function StudyListRoute(props) {
                 All
               </option>
               {projectList.map(project => (
-                <option
-                  key={project.projectName}
-                  style={{ backgroundColor: '#2c363f' }}
-                >
-                  {project.projectName}
+                <option key={project} style={{ backgroundColor: '#2c363f' }}>
+                  {project}
                 </option>
               ))}
             </NativeSelect>
-            <FormHelperText style={{ color: 'white' }}>
-              Select Project
-            </FormHelperText>
           </FormControl>
         </div>
         <div className="actions">
@@ -391,19 +386,11 @@ function StudyListRoute(props) {
           )}
           <Button
             variant="contained"
+            size="small"
             style={{ margin: '2vh' }}
-            onClick={openDialog}
+            onClick={getProjectList}
           >
             <span>Manage Project</span>
-            <ProjectManageDialog
-              open={dialogOpen}
-              onClose={closeDialog}
-              projectList={projectList}
-              projectDict={projectDict}
-              setProjectDict={setProjectDict}
-              getProject={getProjectList}
-              constructStudyDictByProject={constructStudyDictByProject}
-            />
           </Button>
           <span className="study-count">{studies.length}</span>
         </div>
