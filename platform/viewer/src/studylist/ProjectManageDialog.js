@@ -8,18 +8,13 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import Axios from 'axios';
+import axios from 'axios';
 import StudyTable from './StudyTable';
-
-ProjectManageDialog.propTypes = {
-  open: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-  projectList: PropTypes.array.isRequired,
-  projectDict: PropTypes.object.isRequired,
-  setProjectDict: PropTypes.func.isRequired,
-  getProject: PropTypes.func.isRequired,
-  constructStudyDictByProject: PropTypes.func.isRequired,
-};
+import { mutate } from 'swr';
+import {
+  parseProjectList,
+  parseStudiesByProject,
+} from './projectManager/projectManager';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -32,123 +27,181 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const url =
-  process.env.NODE_ENV == 'production'
-    ? 'http://ec2-3-36-95-176.ap-northeast-2.compute.amazonaws.com:8000/'
-    : 'http://ec2-3-36-95-176.ap-northeast-2.compute.amazonaws.com:8000/';
-
-function ProjectManageDialog(props) {
-  const {
-    open,
-    onClose,
-    projectList,
-    projectDict,
-    setProjectDict,
-    getProject,
-    constructStudyDictByProject,
-  } = props;
-  const [addNewDialog, setAddNewDialog] = useState(false);
-  const [projectName, setProjectName] = useState('');
+const ProjectManageDialog = props => {
+  const { open, onClose, projects } = props;
+  const [dialogs, setDialogs] = useState({
+    AddToProjectDialog: false,
+    CreateNewProjectDialog: false,
+  });
   const classes = useStyles();
+
   const handleClose = event => {
     event.stopPropagation();
     onClose();
   };
 
-  //const csrftoken = Cookies.get('csrftoken');
-  const createProject = () => {
-    return Axios.post(url + 'OHIF_project/', {
-      projectName: projectName,
-    }).then(response => {
-      getProject();
-      closeAddNewDialog();
-    });
-    //resync list by update projectList
-  };
-
-  //const deleteProject = projectID => {
-  //  return Axios.delete(
-  //    'http://localhost:8000/api/v1/OHIF_project/${projectID}/',
-  //    projectID
-  //  ).then(response => {
-  //    console.log(response.statusText);
-  //  });
-  //};
-
-  //const updateProject = projectName => {
-  //  return Axios.put();
-  //};
-
-  const openAddNewDialog = () => {
-    setAddNewDialog(true);
-  };
-
-  const closeAddNewDialog = () => {
-    setAddNewDialog(false);
-  };
-
-  const updateTextField = event => {
-    setProjectName(event.target.value);
-  };
-
   return (
     <Dialog
-      maxWidth={'lg'}
+      fullWidth
+      maxWidth={'md'}
       open={open}
       onClose={handleClose}
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
     >
       <DialogTitle id="alert-dialog-title" className={classes.root}>
-        <span>Manage Project</span>
+        <span>Study Table</span>
         <Button
           color="primary"
           size="small"
-          onClick={openAddNewDialog}
+          onClick={() => {
+            setDialogs({ ...dialogs, AddToProjectDialog: true });
+          }}
           style={{ marginLeft: '2vh' }}
         >
-          Add New Project
+          Add To Project
         </Button>
-        <Dialog
-          open={addNewDialog}
-          onClose={closeAddNewDialog}
-          aria-labelledby="form-dialog-title"
+        <AddToProjectDialog
+          dialog={dialogs.AddToProjectDialog}
+          closeDialog={() => {
+            setDialogs({ ...dialogs, AddToProjectDialog: false });
+          }}
+        />
+        <Button
+          color="primary"
+          size="small"
+          onClick={() => {
+            setDialogs({ ...dialogs, CreateNewProjectDialog: true });
+          }}
+          style={{ marginLeft: '2vh' }}
         >
-          <DialogTitle id="form-dialog-title">Add New Project</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Please enter new project name you want to add.
-            </DialogContentText>
-            <TextField
-              autoFocus
-              margin="dense"
-              id="project"
-              label="Project Name"
-              variant="filled"
-              fullWidth
-              onChange={updateTextField}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={createProject} color="primary">
-              Add
-            </Button>
-            <Button onClick={closeAddNewDialog} color="primary">
-              Cancel
-            </Button>
-          </DialogActions>
-        </Dialog>
+          Create New Project
+        </Button>
+        <CreateNewProjectDialog
+          dialog={dialogs.CreateNewProjectDialog}
+          closeDialog={() => {
+            setDialogs({ ...dialogs, CreateNewProjectDialog: false });
+          }}
+        />
       </DialogTitle>
       <DialogContent dividers>
         <StudyTable
-          projectList={projectList}
-          projectDict={projectDict}
-          setProjectDict={setProjectDict}
-          constructStudyDictByProject={constructStudyDictByProject}
+          projectList={parseProjectList(projects)}
+          projectDict={parseStudiesByProject(projects)}
         />
       </DialogContent>
     </Dialog>
   );
-}
+};
 
 export default ProjectManageDialog;
+
+const AddToProjectDialog = props => {
+  const { dialog, closeDialog } = props;
+  const [title, setTitle] = useState('');
+
+  const FastAPI_URL =
+    process.env.NODE_ENV == 'production'
+      ? process.env.PROD_FastAPI_URL
+      : process.env.DEV_FastAPI_URL;
+
+  const createNewProject = props => {
+    return axios
+      .post(FastAPI_URL + '/projects/', { title: title })
+      .then(response => {
+        //console.log('Add Project Success');
+        mutate(FastAPI_URL + '/projects/');
+        closeDialog();
+      });
+  };
+  const updateTextField = event => {
+    setTitle(event.target.value);
+  };
+
+  return (
+    <Dialog
+      open={dialog}
+      onClose={closeDialog}
+      aria-labelledby="form-dialog-title"
+    >
+      <DialogTitle id="form-dialog-title">Add to Project</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          Please enter new project name you want to add.
+        </DialogContentText>
+        <TextField
+          autoFocus
+          margin="dense"
+          id="project title"
+          label="Project Title"
+          variant="filled"
+          fullWidth
+          onChange={updateTextField}
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={createNewProject} color="primary">
+          Add
+        </Button>
+        <Button onClick={closeDialog} color="primary">
+          Cancel
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+const CreateNewProjectDialog = props => {
+  const { dialog, closeDialog } = props;
+  const [title, setTitle] = useState('');
+
+  const FastAPI_URL =
+    process.env.NODE_ENV == 'production'
+      ? process.env.PROD_FastAPI_URL
+      : process.env.DEV_FastAPI_URL;
+
+  const createNewProject = props => {
+    return axios
+      .post(FastAPI_URL + '/projects/', { title: title })
+      .then(response => {
+        //console.log('Add Project Success');
+        mutate(FastAPI_URL + '/projects/');
+        closeDialog();
+      });
+  };
+  const updateTextField = event => {
+    setTitle(event.target.value);
+  };
+
+  return (
+    <Dialog
+      open={dialog}
+      onClose={closeDialog}
+      aria-labelledby="form-dialog-title"
+    >
+      <DialogTitle id="form-dialog-title">Create New Project</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          Please enter new project name you want to add.
+        </DialogContentText>
+        <TextField
+          autoFocus
+          margin="dense"
+          id="project title"
+          label="Project Title"
+          variant="filled"
+          fullWidth
+          onChange={updateTextField}
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={createNewProject} color="primary">
+          Add
+        </Button>
+        <Button onClick={closeDialog} color="primary">
+          Cancel
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};

@@ -27,14 +27,18 @@ import { makeStyles } from '@material-ui/core/styles';
 import FormControl from '@material-ui/core/FormControl';
 import NativeSelect from '@material-ui/core/NativeSelect';
 
-import Axios from 'axios';
+import axios from 'axios';
 import Button from '@material-ui/core/Button';
 import ProjectManageDialog from './ProjectManageDialog.js';
 
 import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
 
-import { getProjectList } from './projectManager/projectManager.js';
+import useSWR from 'swr';
+import {
+  parseProjectList,
+  parseStudiesByProject,
+} from './projectManager/projectManager.js';
 
 const useStyles = makeStyles(theme => ({
   formControl: {
@@ -145,20 +149,29 @@ function StudyListRoute(props) {
     setProjectDict(studyListByProject);
   };
 
-  const [projectList, setProjectList] = useState([]);
+  //const [projectList, setProjectList] = useState([]);
 
-  const updateProjectList = async () => {
-    await getProjectList().then(response => {
-      const projectListFromDB = response.data.map(project => {
-        return project.title;
-      });
-      setProjectList(projectListFromDB);
-    });
-  };
-  // Get the project list from backend on initial render
-  useEffect(() => {
-    updateProjectList();
-  }, []);
+  // const updateProjectList = async () => {
+  //   await getProjectList().then(response => {
+  //     const projectListFromDB = response.data.map(project => {
+  //       return project.title;
+  //     });
+  //     setProjectList(projectListFromDB);
+  //   });
+  // };
+  // // Get the project list from backend on initial render
+  // useEffect(() => {
+  //   updateProjectList();
+  // }, []);
+
+  const FastAPI_URL =
+    process.env.NODE_ENV == 'production'
+      ? process.env.PROD_FastAPI_URL
+      : process.env.DEV_FastAPI_URL;
+
+  const projectsFetcher = url => axios.get(url).then(res => res.data);
+  const { data } = useSWR(FastAPI_URL + '/projects/', projectsFetcher);
+
   // Called when relevant state/props are updated
   // Watches filters and sort, debounced
   useEffect(
@@ -369,11 +382,12 @@ function StudyListRoute(props) {
               >
                 All
               </option>
-              {projectList.map(project => (
-                <option key={project} style={{ backgroundColor: '#2c363f' }}>
-                  {project}
-                </option>
-              ))}
+              {data &&
+                parseProjectList(data).map(project => (
+                  <option key={project} style={{ backgroundColor: '#2c363f' }}>
+                    {project}
+                  </option>
+                ))}
             </NativeSelect>
           </FormControl>
         </div>
@@ -388,10 +402,18 @@ function StudyListRoute(props) {
             variant="contained"
             size="small"
             style={{ margin: '2vh' }}
-            onClick={getProjectList}
+            onClick={openDialog}
           >
-            <span>Manage Project</span>
+            <span>Manage Study</span>
           </Button>
+          {data && (
+            <ProjectManageDialog
+              open={dialogOpen}
+              onClose={closeDialog}
+              projects={data}
+            />
+          )}
+
           <span className="study-count">{studies.length}</span>
         </div>
       </div>
