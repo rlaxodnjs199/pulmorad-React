@@ -29,7 +29,7 @@ import NativeSelect from '@material-ui/core/NativeSelect';
 
 import axios from 'axios';
 import Button from '@material-ui/core/Button';
-import ProjectManageDialog from './ProjectManageDialog.js';
+import StudyManageDialog from './StudyManageDialog.js';
 
 import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
@@ -38,7 +38,7 @@ import useSWR from 'swr';
 import {
   parseProjectList,
   parseStudiesByProject,
-} from './projectManager/projectManager.js';
+} from './parsingUtil/Parser.js';
 
 const useStyles = makeStyles(theme => ({
   formControl: {
@@ -59,11 +59,6 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const { urlUtil: UrlUtil } = OHIF.utils;
-
-const FastAPI_URL =
-  process.env.NODE_ENV == 'production'
-    ? process.env.PROD_FastAPI_URL
-    : process.env.DEV_FastAPI_URL;
 
 function StudyListRoute(props) {
   const classes = useStyles();
@@ -120,58 +115,15 @@ function StudyListRoute(props) {
     setActiveModalId('DicomStorePicker');
   }
 
-  // Construct project list dictionary from Django response and Orthanc response using UID mapping
-  const [project, setProject] = useState('INIT');
-  const [projectDict, setProjectDict] = useState({});
-  const constructStudyDictByProject = response => {
-    let UIDProjectMapping = {};
-    let studyListByProject = {};
-    Axios.get(FastAPI_URL + 'study_list/').then(studyData => {
-      for (let study of studyData.data) {
-        UIDProjectMapping[study.studyUID] = study.projectName;
-      }
-      studyListByProject['All'] = [];
-      studyListByProject['Undefined'] = [];
-      for (let study of response) {
-        studyListByProject['All'].push(study);
-        if (UIDProjectMapping.hasOwnProperty(study.studyInstanceUid)) {
-          let projectName = UIDProjectMapping[study.studyInstanceUid];
-          if (projectName in studyListByProject) {
-            studyListByProject[projectName].push(study);
-          } else {
-            studyListByProject[projectName] = [study];
-          }
-        } else {
-          studyListByProject['Undefined'].push(study);
-        }
-      }
-    });
-    setProjectDict(studyListByProject);
-  };
-
-  //const [projectList, setProjectList] = useState([]);
-
-  // const updateProjectList = async () => {
-  //   await getProjectList().then(response => {
-  //     const projectListFromDB = response.data.map(project => {
-  //       return project.title;
-  //     });
-  //     setProjectList(projectListFromDB);
-  //   });
-  // };
-  // // Get the project list from backend on initial render
-  // useEffect(() => {
-  //   updateProjectList();
-  // }, []);
-
   const FastAPI_URL =
     process.env.NODE_ENV == 'production'
       ? process.env.PROD_FastAPI_URL
       : process.env.DEV_FastAPI_URL;
 
-  const projectsFetcher = url => axios.get(url).then(res => res.data);
-  const { data } = useSWR(FastAPI_URL + '/projects/', projectsFetcher);
+  const [studyDict, setStudyDict] = useState({});
 
+  const initGridFetcher = url => axios.get(url).then(res => res.data);
+  const { data } = useSWR(FastAPI_URL + '/initgrid/', initGridFetcher);
   // Called when relevant state/props are updated
   // Watches filters and sort, debounced
   useEffect(
@@ -189,6 +141,7 @@ function StudyListRoute(props) {
             displaySize
           );
           setStudies(response);
+          setStudyDict(parseStudiesByProject(data, response));
           setSearchStatus({ error: null, isSearchingForStudies: false });
         } catch (error) {
           setSearchStatus({ error: true, isFetching: false });
@@ -220,11 +173,6 @@ function StudyListRoute(props) {
   //   });
   // }
 
-  const handleProjectChange = event => {
-    event.preventDefault();
-    setProject(event.target.value);
-  };
-
   const [openSnackBar, setSnackBar] = useState(false);
 
   const handleSnackBarClose = event => {
@@ -232,19 +180,15 @@ function StudyListRoute(props) {
     setSnackBar(false);
   };
 
-  const selectProject = () => {
-    if (project != 'INIT') {
-      if (!(project in projectDict)) {
-        setSnackBar(true);
-      } else {
-        setStudies(projectDict[project]);
-      }
-    }
-  };
+  const [project, setProject] = useState('All');
 
   useEffect(() => {
-    selectProject(), [handleProjectChange];
-  });
+    if (project in studyDict) {
+      setStudies(studyDict[project]);
+    } else {
+      setStudies([]);
+    }
+  }, [project, studyDict]);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const openDialog = () => {
@@ -368,7 +312,9 @@ function StudyListRoute(props) {
           <FormControl className={classes.formControl}>
             <NativeSelect
               value={project}
-              onChange={handleProjectChange}
+              onChange={e => {
+                setProject(e.target.value);
+              }}
               inputProps={{
                 name: 'age',
                 id: 'age-native-helper',
@@ -388,6 +334,13 @@ function StudyListRoute(props) {
                     {project}
                   </option>
                 ))}
+              <option
+                key={'Unassigned'}
+                aria-label="None"
+                style={{ backgroundColor: '#2c363f' }}
+              >
+                Unassigned
+              </option>
             </NativeSelect>
           </FormControl>
         </div>
@@ -407,7 +360,7 @@ function StudyListRoute(props) {
             <span>Manage Study</span>
           </Button>
           {data && (
-            <ProjectManageDialog
+            <StudyManageDialog
               open={dialogOpen}
               onClose={closeDialog}
               projects={data}

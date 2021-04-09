@@ -11,10 +11,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import axios from 'axios';
 import StudyTable from './StudyTable';
 import { mutate } from 'swr';
-import {
-  parseProjectList,
-  parseStudiesByProject,
-} from './projectManager/projectManager';
+import { parseProjectList, parseStudiesByProject } from './parsingUtil/Parser';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -27,7 +24,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const ProjectManageDialog = props => {
+export const StudyManageDialog = props => {
   const { open, onClose, projects } = props;
   const [dialogs, setDialogs] = useState({
     AddToProjectDialog: false,
@@ -94,7 +91,7 @@ const ProjectManageDialog = props => {
   );
 };
 
-export default ProjectManageDialog;
+export default StudyManageDialog;
 
 const AddToProjectDialog = props => {
   const { dialog, closeDialog } = props;
