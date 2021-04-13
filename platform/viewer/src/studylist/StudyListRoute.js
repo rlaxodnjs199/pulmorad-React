@@ -363,7 +363,8 @@ function StudyListRoute(props) {
             <StudyManageDialog
               open={dialogOpen}
               onClose={closeDialog}
-              projects={data}
+              projectList={data[0]}
+              studyDict={studyDict}
             />
           )}
 

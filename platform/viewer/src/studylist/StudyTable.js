@@ -59,7 +59,6 @@ const StudyTable = props => {
   const logger = () => {
     console.log(projectList);
     console.log(projectDict);
-    console.log(rowSelected);
   };
 
   return (

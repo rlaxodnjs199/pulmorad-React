@@ -1,5 +1,7 @@
 export const parseStudiesByProject = (dataFromDB, studiesFromDicomServer) => {
   const studiesFromDB = dataFromDB[1];
+  console.log(dataFromDB);
+  console.log(studiesFromDB);
   let project_study_dict = {};
   let all_studies = [];
   let unassigned_studies = [];

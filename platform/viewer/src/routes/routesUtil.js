@@ -33,12 +33,6 @@ const MainPage = asyncComponent(() =>
   import(/* webpackChunkName: "ViewerLocalFileData" */ '../mainPage/main.js')
 );
 
-const DataTablePage = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "ViewerLocalFileData" */ '../mainPage/dataTable/dataTable.js'
-  )
-);
-
 const reload = () => window.location.reload();
 
 const ROUTES_DEF = {
@@ -54,10 +48,6 @@ const ROUTES_DEF = {
     list: {
       path: '/',
       component: MainPage,
-    },
-    dataTable: {
-      path: '/dataTable',
-      component: DataTablePage,
     },
     study: {
       path: '/studylist',

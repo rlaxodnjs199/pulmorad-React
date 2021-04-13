@@ -8,6 +8,8 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import FormControl from '@material-ui/core/FormControl';
+import NativeSelect from '@material-ui/core/NativeSelect';
 import axios from 'axios';
 import StudyTable from './StudyTable';
 import { mutate } from 'swr';
@@ -22,10 +24,17 @@ const useStyles = makeStyles(theme => ({
       margin: theme.spacing(1),
     },
   },
+  formControl: {
+    color: 'white',
+    marginTop: theme.spacing(0.5),
+    marginLeft: theme.spacing(2),
+    minWidth: 120,
+  },
 }));
 
 export const StudyManageDialog = props => {
-  const { open, onClose, projects } = props;
+  const { open, onClose, projectList, studyDict } = props;
+  const [project, setProject] = useState('Unassigned');
   const [dialogs, setDialogs] = useState({
     AddToProjectDialog: false,
     CreateNewProjectDialog: false,
@@ -48,6 +57,25 @@ export const StudyManageDialog = props => {
     >
       <DialogTitle id="alert-dialog-title" className={classes.root}>
         <span>Study Table</span>
+        <FormControl className={classes.formControl}>
+          <NativeSelect
+            value={project}
+            onChange={e => {
+              setProject(e.target.value);
+            }}
+            inputProps={{
+              name: 'age',
+              id: 'age-native-helper',
+            }}
+            style={{ color: 'black' }}
+          >
+            <option key={'unassigined'}>Unassigned</option>
+            {projectList &&
+              projectList.map(project => (
+                <option key={project.title}>{project.title}</option>
+              ))}
+          </NativeSelect>
+        </FormControl>
         <Button
           color="primary"
           size="small"
@@ -83,8 +111,9 @@ export const StudyManageDialog = props => {
       </DialogTitle>
       <DialogContent dividers>
         <StudyTable
-          projectList={parseProjectList(projects)}
-          projectDict={parseStudiesByProject(projects)}
+          projectList={projectList}
+          project={project}
+          projectDict={studyDict}
         />
       </DialogContent>
     </Dialog>
@@ -106,7 +135,7 @@ const AddToProjectDialog = props => {
     return axios
       .post(FastAPI_URL + '/projects/', { title: title })
       .then(response => {
-        //console.log('Add Project Success');
+        console.log('Add Project Success');
         mutate(FastAPI_URL + '/projects/');
         closeDialog();
       });
@@ -158,13 +187,10 @@ const CreateNewProjectDialog = props => {
       : process.env.DEV_FastAPI_URL;
 
   const createNewProject = props => {
-    return axios
-      .post(FastAPI_URL + '/projects/', { title: title })
-      .then(response => {
-        //console.log('Add Project Success');
-        mutate(FastAPI_URL + '/projects/');
-        closeDialog();
-      });
+    return axios.post(FastAPI_URL + '/projects/', { title: title }).then(() => {
+      mutate(FastAPI_URL + '/initgrid/');
+      closeDialog();
+    });
   };
   const updateTextField = event => {
     setTitle(event.target.value);
