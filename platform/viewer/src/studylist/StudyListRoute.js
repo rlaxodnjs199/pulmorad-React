@@ -15,7 +15,7 @@ import * as RoutesUtil from '../routes/routesUtil';
 import moment from 'moment';
 import ConnectedDicomFilesUploader from '../googleCloud/ConnectedDicomFilesUploader';
 import ConnectedDicomStorePicker from '../googleCloud/ConnectedDicomStorePicker';
-import filesToStudies from '../lib/filesToStudies.js';
+// import filesToStudies from '../lib/filesToStudies.js';
 
 // Contexts
 import UserManagerContext from '../context/UserManagerContext';
@@ -161,6 +161,7 @@ function StudyListRoute(props) {
       pageNumber,
       displaySize,
       server,
+      data,
     ]
   );
 
@@ -198,14 +199,14 @@ function StudyListRoute(props) {
     setDialogOpen(false);
   };
 
-  const onDrop = async acceptedFiles => {
-    try {
-      const studiesFromFiles = await filesToStudies(acceptedFiles);
-      setStudies(studiesFromFiles);
-    } catch (error) {
-      setSearchStatus({ isSearchingForStudies: false, error });
-    }
-  };
+  // const onDrop = async acceptedFiles => {
+  //   try {
+  //     const studiesFromFiles = await filesToStudies(acceptedFiles);
+  //     setStudies(studiesFromFiles);
+  //   } catch (error) {
+  //     setSearchStatus({ isSearchingForStudies: false, error });
+  //   }
+  // };
 
   if (searchStatus.error) {
     return <div>Error: {JSON.stringify(searchStatus.error)}</div>;
@@ -510,7 +511,7 @@ async function getStudyList(
 
     return {
       AccessionNumber: study.AccessionNumber, // "1"
-      modalities: study.modalities, // "SEG\\MR"  ​​
+      modalities: study.modalities, // "SEG\\MR"
       // numberOfStudyRelatedInstances: "3"
       // numberOfStudyRelatedSeries: "3"
       // PatientBirthdate: undefined

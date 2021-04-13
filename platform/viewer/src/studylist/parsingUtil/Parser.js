@@ -1,7 +1,5 @@
 export const parseStudiesByProject = (dataFromDB, studiesFromDicomServer) => {
   const studiesFromDB = dataFromDB[1];
-  console.log(dataFromDB);
-  console.log(studiesFromDB);
   let project_study_dict = {};
   let all_studies = [];
   let unassigned_studies = [];
@@ -20,10 +18,8 @@ export const parseStudiesByProject = (dataFromDB, studiesFromDicomServer) => {
       } else {
         unassigned_studies.push(study);
       }
-      // console.log(study.StudyInstanceUID);
     });
   }
-
   project_study_dict['All'] = all_studies;
   project_study_dict['Unassigned'] = unassigned_studies;
 
