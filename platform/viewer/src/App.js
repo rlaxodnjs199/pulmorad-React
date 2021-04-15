@@ -89,6 +89,10 @@ const FastAPI_URL =
     ? process.env.PROD_FastAPI_URL
     : process.env.DEV_FastAPI_URL;
 
+const axios_withCredentials = axios.create({
+  withCredentials: true,
+});
+
 class App extends Component {
   static propTypes = {
     config: PropTypes.oneOfType([
@@ -167,36 +171,28 @@ class App extends Component {
 
     this.state = {
       username: '',
-      logged_in: localStorage.getItem('token') ? true : false,
+      logged_in: false,
     };
   }
 
   handle_login = (e, username, password) => {
     e.preventDefault();
-    const form = new FormData();
-    const formHeaders = form.getHeaders;
+    const params = new URLSearchParams();
+    params.append('username', username);
+    params.append('password', password);
 
-    form.append('username', username);
-    form.append('password', password);
+    console.log(username);
+    console.log(password);
 
-    axios
-      .post(FastAPI_URL + '/auth/signin', form, {
-        headers: {
-          ...formHeaders,
-        },
-      })
+    axios_withCredentials
+      .post(FastAPI_URL + '/auth/login', params)
       .then(response => {
-        localStorage.setItem('token', response.data.access_token);
-        this.setState({
-          username: response.data.username,
-          logged_in: true,
-        });
+        this.setState({ username: response.data.username, logged_in: true });
       });
   };
 
   handle_logout = () => {
-    localStorage.removeItem('token');
-    this.setState({ logged_in: false, username: '' });
+    this.setState({ username: '', logged_in: false });
   };
 
   render() {
