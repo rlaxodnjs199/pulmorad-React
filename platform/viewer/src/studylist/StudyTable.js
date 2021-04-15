@@ -88,7 +88,7 @@ const StudyTable = props => {
 StudyTable.propTypes = {
   projectList: PropTypes.array.isRequired,
   currentProject: PropTypes.string.isRequired,
-  studyArray: PropTypes.object.isRequired,
+  studyArray: PropTypes.array.isRequired,
 };
 
 const AddToProjectDialog = props => {
@@ -222,7 +222,7 @@ AddToProjectDialog.propTypes = {
   projectList: PropTypes.array.isRequired,
   dialog: PropTypes.bool.isRequired,
   closeDialog: PropTypes.func.isRequired,
-  studyArray: PropTypes.object.isRequired,
+  studyArray: PropTypes.array.isRequired,
   rowSelected: PropTypes.array.isRequired,
 };
 

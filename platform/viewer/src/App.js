@@ -30,7 +30,6 @@ import {
 } from '@ohif/core';
 
 import axios from 'axios';
-import FormData from 'form-data';
 
 import i18n from '@ohif/i18n';
 
@@ -180,9 +179,6 @@ class App extends Component {
     const params = new URLSearchParams();
     params.append('username', username);
     params.append('password', password);
-
-    console.log(username);
-    console.log(password);
 
     axios_withCredentials
       .post(FastAPI_URL + '/auth/login', params)

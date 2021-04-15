@@ -90,13 +90,15 @@ export const StudyManageDialog = props => {
         </Button>
         <CreateNewProjectDialog dialog={dialog} closeDialog={closeDialog} />
       </DialogTitle>
-      <DialogContent dividers>
-        <StudyTable
-          projectList={projectList}
-          currentProject={project}
-          studyArray={studyDict[project]}
-        />
-      </DialogContent>
+      {studyDict[project] && (
+        <DialogContent dividers>
+          <StudyTable
+            projectList={projectList}
+            currentProject={project}
+            studyArray={studyDict[project]}
+          />
+        </DialogContent>
+      )}
     </Dialog>
   );
 };
