@@ -1,7 +1,6 @@
 import React, { useState, useContext } from 'react';
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
-import BlurOnIcon from '@material-ui/icons/BlurOn';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Grid from '@material-ui/core/Grid';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -19,12 +18,13 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import { useHistory } from 'react-router-dom';
 import UserAuthContext from '../context/UserAuthContext';
+import logo from '../../public/assets/android-chrome-24x24.png';
 
-const customtheme = createMuiTheme({
+const theme = createMuiTheme({
   palette: {
     primary: {
       light: '#534bae',
-      main: '#000051',
+      main: '#2C2C2E',
       dark: '#534bae',
       contrastText: '#fff',
     },
@@ -59,6 +59,7 @@ function Copyright() {
 const useStyles = makeStyles(theme => ({
   body: {
     height: '100vh',
+    backgroundColor: '#F2F2F7',
   },
   icon: {
     marginRight: theme.spacing(2),
@@ -114,11 +115,6 @@ export default function MainPage() {
   const [password, setPassword] = useState('');
   const [formvalid, setFormvalid] = useState(true);
 
-  const url =
-    process.env.NODE_ENV == 'production'
-      ? process.env.PROD_ROUTING_URL
-      : process.env.DEV_ROUTING_URL;
-
   const logout = () => {
     handleMenuClose();
     userAuth.logout();
@@ -133,15 +129,15 @@ export default function MainPage() {
   };
 
   const handleOhifButtonClick = () => {
-    window.location.href = url + '/studylist/';
+    history.push('/studylist/');
   };
 
   const handleOrthancButtonClick = () => {
-    window.location.href = url + '/orthanc-admin/';
+    history.push('/orthanc-admin/');
   };
 
   const handleCytomineButtonClick = () => {
-    window.location.href = url + '/cytomine/';
+    history.push('/cytomine/');
   };
 
   const handleNAS1ButtonClick = () => {
@@ -153,7 +149,7 @@ export default function MainPage() {
   };
 
   const handleDataTableButtonClick = () => {
-    window.location.href = url + '/dataTable/';
+    history.push('/dataTable/');
   };
 
   const handleSubmit = event => {
@@ -163,11 +159,11 @@ export default function MainPage() {
   return (
     <React.Fragment>
       <CssBaseline />
-      <ThemeProvider theme={customtheme}>
+      <ThemeProvider theme={theme}>
         <div className={classes.body}>
           <AppBar position="sticky" color="primary">
             <Toolbar variant="dense">
-              <BlurOnIcon className={classes.icon} />
+              <img src={logo} style={{ paddingRight: 3 }} alt="icon" />
               <Typography variant="h6" color="inherit" style={{ flex: 1 }}>
                 LAMIS
               </Typography>
@@ -205,7 +201,7 @@ export default function MainPage() {
                   color="textPrimary"
                   gutterBottom
                 >
-                  PulmoRad
+                  Pulmorad
                 </Typography>
                 <Typography
                   variant="h5"
