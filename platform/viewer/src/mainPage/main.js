@@ -18,7 +18,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import { useHistory } from 'react-router-dom';
 import UserAuthContext from '../context/UserAuthContext';
-import logo from '../../public/assets/android-chrome-24x24.png';
+import logo from '../../public/assets/android-chrome-384x384.png';
 
 const theme = createMuiTheme({
   palette: {
@@ -161,10 +161,22 @@ export default function MainPage() {
       <CssBaseline />
       <ThemeProvider theme={theme}>
         <div className={classes.body}>
-          <AppBar position="sticky" color="primary">
+          <AppBar
+            position="sticky"
+            color="primary"
+            style={{ maxHeight: '50px' }}
+          >
             <Toolbar variant="dense">
-              <img src={logo} style={{ paddingRight: 3 }} alt="icon" />
-              <Typography variant="h6" color="inherit" style={{ flex: 1 }}>
+              <img
+                src={logo}
+                style={{
+                  minHeight: '25px',
+                  height: '30px',
+                  paddingRight: 3,
+                }}
+                alt="icon"
+              />
+              <Typography variant="h5" color="inherit" style={{ flex: 1 }}>
                 LAMIS
               </Typography>
               {userAuth.state.logged_in && (
