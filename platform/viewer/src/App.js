@@ -177,11 +177,12 @@ class App extends Component {
   handle_login = (e, username, password) => {
     e.preventDefault();
     const params = new URLSearchParams();
+    params.append('grant_type', 'password');
     params.append('username', username);
     params.append('password', password);
 
     axios_withCredentials
-      .post(FastAPI_URL + '/auth/login', params)
+      .post(FastAPI_URL + '/login', params)
       .then(response => {
         this.setState({ username: response.data.username, logged_in: true });
       });

@@ -245,7 +245,7 @@ export default function MainPage() {
                   <Paper elevation={3}>
                     <div className={classes.paperButton}>
                       <Button size="medium" onClick={handleOhifButtonClick}>
-                        OHIF <br /> VIEWER
+                        DICOM <br /> VIEWER
                       </Button>
                     </div>
                   </Paper>
