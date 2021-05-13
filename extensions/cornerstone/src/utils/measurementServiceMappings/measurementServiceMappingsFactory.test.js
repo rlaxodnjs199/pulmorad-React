@@ -58,7 +58,7 @@ describe('measurementServiceMappings.js', () => {
       label: 'Test',
       description: 'Test',
       unit: 'mm',
-      type: measurementServiceMock.VALUE_TYPES.POLYLINE,
+      type: measurementServiceMock.VALUE_TYPES.CIRCLE,
       points: points,
     };
     jest.clearAllMocks();

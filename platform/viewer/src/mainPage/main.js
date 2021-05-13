@@ -18,7 +18,8 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import { useHistory } from 'react-router-dom';
 import UserAuthContext from '../context/UserAuthContext';
-import logo from '../../public/assets/android-chrome-384x384.png';
+
+const logo = '../../public/assets/android-chrome-384x384.png';
 
 const theme = createMuiTheme({
   palette: {

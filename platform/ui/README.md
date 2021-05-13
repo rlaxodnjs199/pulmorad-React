@@ -3,7 +3,7 @@
 <div align="center">
   <h1>@ohif/ui</h1>
 
-  <p><strong>@ohif/ui</strong> is a collection of components and utilities that power OHIF's <a href="https://github.com/OHIF/Viewers">zero-footprint DICOM viewer</a>.</p>
+  <p><strong>@ohif/ui</strong> is a collection of components and utilities that power OHIF's <a href="https://github.com/donghakang/ohif-v2">zero-footprint DICOM viewer</a>.</p>
 </div>
 
 <div align="center">

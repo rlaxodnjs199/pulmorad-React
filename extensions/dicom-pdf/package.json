@@ -4,7 +4,7 @@
   "description": "OHIF extension for Dicom PDF",
   "author": "OHIF",
   "license": "MIT",
-  "repository": "OHIF/Viewers",
+  "repository": "donghakang/ohif-v2",
   "main": "dist/index.umd.js",
   "module": "src/index.js",
   "publishConfig": {

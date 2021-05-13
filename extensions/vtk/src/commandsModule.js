@@ -14,9 +14,12 @@ import OHIFVTKViewport from './OHIFVTKViewport';
 
 const { BlendMode } = Constants;
 
-const commandsModule = ({ commandsManager, UINotificationService }) => {
+const commandsModule = ({ commandsManager, servicesManager }) => {
+  const { UINotificationService, LoggerService } = servicesManager.services;
+
   // TODO: Put this somewhere else
   let apis = {};
+  let defaultVOI;
 
   async function _getActiveViewportVTKApi(viewports) {
     const {
@@ -119,9 +122,11 @@ const commandsModule = ({ commandsManager, UINotificationService }) => {
       return apis[index];
     },
     resetMPRView() {
-      apis.forEach(api => {
-        api.resetOrientation();
-      });
+      // Reset orientation
+      apis.forEach(api => api.resetOrientation());
+
+      // Reset VOI
+      if (defaultVOI) setVOI(defaultVOI);
 
       // Reset the crosshairs
       apis[0].svgWidgets.rotatableCrosshairsWidget.resetCrosshairs(apis, 0);
@@ -387,6 +392,7 @@ const commandsModule = ({ commandsManager, UINotificationService }) => {
 
       // Get current VOI if cornerstone viewport.
       const cornerstoneVOI = getVOIFromCornerstoneViewport();
+      defaultVOI = cornerstoneVOI;
 
       const viewportProps = [
         {
@@ -469,10 +475,12 @@ const commandsModule = ({ commandsManager, UINotificationService }) => {
         const volumeLength = dimensions[0] * dimensions[1] * dimensions[2];
 
         if (volumeLength > maxBufferLengthFloat32) {
+          const message =
+            'This volume is too large to fit in WebGL 1 textures and will display incorrectly. Please use a different browser to view this data';
+          LoggerService.error({ message });
           UINotificationService.show({
             title: 'Browser does not support WebGL 2',
-            message:
-              'This volume is too large to fit in WebGL 1 textures and will display incorrectly. Please use a different browser to view this data',
+            message,
             type: 'error',
             autoClose: false,
           });

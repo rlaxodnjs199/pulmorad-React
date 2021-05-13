@@ -26,6 +26,7 @@ const TOOLBAR_BUTTON_TYPES = {
 const TOOLBAR_BUTTON_BEHAVIORS = {
   CINE: 'CINE',
   DOWNLOAD_SCREEN_SHOT: 'DOWNLOAD_SCREEN_SHOT',
+  THRESHOLD: 'THRESHOLD',
 };
 
 /* TODO: Export enums through a extension manager. */
@@ -61,6 +62,16 @@ const definitions = [
     type: TOOLBAR_BUTTON_TYPES.SET_TOOL_ACTIVE,
     commandName: 'setToolActive',
     commandOptions: { toolName: 'Wwwc' },
+  },
+  {
+    id: 'Threshold',
+    label: 'Threshold',
+    // icon needs to be changed.
+    icon: 'level',
+    type: TOOLBAR_BUTTON_TYPES.BUILT_IN,
+    options: {
+      behavior: TOOLBAR_BUTTON_BEHAVIORS.THRESHOLD,
+    },
   },
   {
     id: 'Pan',

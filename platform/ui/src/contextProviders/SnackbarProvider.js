@@ -22,6 +22,7 @@ const SnackbarProvider = ({ children, service }) => {
     autoClose: true,
     position: 'bottomRight',
     type: SnackbarTypes.INFO,
+    action: null,
   };
 
   const [count, setCount] = useState(1);
@@ -35,6 +36,10 @@ const SnackbarProvider = ({ children, service }) => {
         );
 
         return null;
+      }
+
+      if (options.type === 'error') {
+        console.error(options.error);
       }
 
       const newItem = {

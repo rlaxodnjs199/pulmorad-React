@@ -15,7 +15,9 @@ export default function({ eventData, tool, toolGroupId, toolGroup }) {
   // Stop here if the tool data shall not be persisted (e.g. temp tools)
   if (!collection) return;
 
-  log.info('CornerstoneToolsMeasurementModified');
+  log.info(
+    'CornerstoneToolsMeasurementModified (handleSingleMeasurementModified)'
+  );
   let measurement = collection.find(t => t._id === measurementData._id);
 
   // Stop here if the measurement is already deleted
@@ -24,6 +26,7 @@ export default function({ eventData, tool, toolGroupId, toolGroup }) {
   measurement = Object.assign(measurement, measurementData);
   measurement.viewport = cornerstone.getViewport(eventData.element);
 
+  console.log('handleChildMeasurementModified');
   measurementApi.updateMeasurement(toolType, measurement);
 
   // TODO: Notify about the last activated measurement
