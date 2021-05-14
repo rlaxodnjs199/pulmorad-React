@@ -25,7 +25,6 @@ export default function({ eventData, tool, toolGroupId, toolGroup }) {
 
   childMeasurement = Object.assign(childMeasurement, measurementData);
   childMeasurement.viewport = cornerstone.getViewport(eventData.element);
-
   // Update the parent measurement
   measurement[tool.attribute] = childMeasurement;
   measurementApi.updateMeasurement(tool.parentTool, measurement);

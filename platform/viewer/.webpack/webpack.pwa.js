@@ -28,8 +28,6 @@ const PROXY_TARGET = process.env.PROXY_TARGET;
 const PROXY_DOMAIN = process.env.PROXY_DOMAIN;
 const ENTRY_TARGET = process.env.ENTRY_TARGET || `${SRC_DIR}/index.js`;
 
-const Dotenv = require('dotenv-webpack');
-
 module.exports = (env, argv) => {
   const baseConfig = webpackBase(env, argv, { SRC_DIR, DIST_DIR });
   const isProdBuild = process.env.NODE_ENV === 'production';
@@ -45,20 +43,9 @@ module.exports = (env, argv) => {
       publicPath: PUBLIC_URL, // Used by HtmlWebPackPlugin for asset prefix
     },
     module: {
-      rules: [
-        ...extractStyleChunksRule(isProdBuild),
-        {
-          test: /\.(png|jpe?g|gif)$/i,
-          use: [
-            {
-              loader: 'file-loader',
-            },
-          ],
-        },
-      ],
+      rules: [...extractStyleChunksRule(isProdBuild)],
     },
     plugins: [
-      new Dotenv(),
       // Uncomment to generate bundle analyzer
       // new BundleAnalyzerPlugin(),
       // Clean output.path

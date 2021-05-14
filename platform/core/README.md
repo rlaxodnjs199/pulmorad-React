@@ -2,7 +2,7 @@
 <!-- markdownlint-disable -->
 <div align="center">
   <h1>@ohif/core</h1>
-  <p><strong>@ohif/core</strong> is a collection of useful functions and classes for building web-based medical imaging applications. This library helps power OHIF's <a href="https://github.com/OHIF/Viewers">zero-footprint DICOM viewer</a>.</p>
+  <p><strong>@ohif/core</strong> is a collection of useful functions and classes for building web-based medical imaging applications. This library helps power OHIF's <a href="https://github.com/donghakang/ohif-v2">zero-footprint DICOM viewer</a>.</p>
 </div>
 
 <hr />
@@ -35,7 +35,7 @@ can be used with Vue, React, Vanilla JS, or any number of other frameworks.
 
 The documentation for this library is sparse. The best way to get started is to
 look at its
-[top level exports](https://github.com/OHIF/Viewers/blob/master/platform/core/src/index.js),
+[top level exports](https://github.com/donghakang/ohif-v2/blob/master/platform/core/src/index.js),
 and explore the source code of features that interest you. If you want to see
 how we use this library, you can check out [our viewer
 implementation][react-viewer].
@@ -132,5 +132,5 @@ Links:
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square
 [license-url]: LICENSE
 <!-- Misc. -->
-[react-viewer]: https://github.com/OHIF/Viewers/tree/react
+[react-viewer]: https://github.com/donghakang/ohif-v2/tree/react
 <!-- prettier-ignore-end -->

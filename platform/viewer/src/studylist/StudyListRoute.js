@@ -15,7 +15,7 @@ import * as RoutesUtil from '../routes/routesUtil';
 import moment from 'moment';
 import ConnectedDicomFilesUploader from '../googleCloud/ConnectedDicomFilesUploader';
 import ConnectedDicomStorePicker from '../googleCloud/ConnectedDicomStorePicker';
-// import filesToStudies from '../lib/filesToStudies.js';
+import filesToStudies from '../lib/filesToStudies.js';
 
 // Contexts
 import UserManagerContext from '../context/UserManagerContext';
@@ -90,7 +90,7 @@ function StudyListRoute(props) {
     error: null,
   });
   const [activeModalId, setActiveModalId] = useState(null);
-  const [rowsPerPage, setRowsPerPage] = useState(100);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
   const [pageNumber, setPageNumber] = useState(0);
   const appContext = useContext(AppContext);
   // ~~ RESPONSIVE
@@ -124,6 +124,7 @@ function StudyListRoute(props) {
 
   const initGridFetcher = url => axios.get(url).then(res => res.data);
   const { data } = useSWR(FastAPI_URL + '/initgrid/', initGridFetcher);
+
   // Called when relevant state/props are updated
   // Watches filters and sort, debounced
   useEffect(
@@ -140,10 +141,12 @@ function StudyListRoute(props) {
             pageNumber,
             displaySize
           );
+
           setStudies(response);
           setStudyDict(parseStudiesByProject(data, response));
           setSearchStatus({ error: null, isSearchingForStudies: false });
         } catch (error) {
+          console.warn(error);
           setSearchStatus({ error: true, isFetching: false });
         }
       };
@@ -491,8 +494,8 @@ async function getStudyList(
     StudyDescription: filters.StudyDescription,
     ModalitiesInStudy: filters.modalities,
     // NEVER CHANGE
-    studyDateFrom,
-    studyDateTo,
+    studyDateFrom: filters.studyDateFrom,
+    studyDateTo: filters.studyDateTo,
     limit: rowsPerPage,
     offset: pageNumber * rowsPerPage,
     fuzzymatching: server.supportsFuzzyMatching === true,
@@ -511,7 +514,7 @@ async function getStudyList(
 
     return {
       AccessionNumber: study.AccessionNumber, // "1"
-      modalities: study.modalities, // "SEG\\MR"
+      modalities: study.modalities, // "SEG\\MR"  ​​
       // numberOfStudyRelatedInstances: "3"
       // numberOfStudyRelatedSeries: "3"
       // PatientBirthdate: undefined

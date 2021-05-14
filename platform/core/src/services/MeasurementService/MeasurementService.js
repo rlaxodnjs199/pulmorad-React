@@ -123,7 +123,7 @@ class MeasurementService {
       return;
     }
 
-    const id = guid();
+    const id = guid(); // 자동으로 된 아이디를 가져온다.
     const source = {
       id,
       name,
@@ -260,7 +260,6 @@ class MeasurementService {
     const sourceInfo = this._getSourceInfo(source);
 
     if (!definition) {
-      console.log('TEST');
       log.warn('No source definition provided. Exiting early.');
       return;
     }
@@ -273,20 +272,28 @@ class MeasurementService {
     }
 
     let measurement = {};
+
+    // Dongha Kang
+    // function (mapping) {
+    //   return mapping.definition === definition
+    // }
+
     try {
-      const sourceMappings = this.mappings[source.id];
-      const { toMeasurementSchema } = sourceMappings.find(
-        mapping => mapping.definition === definition
-      );
+      const sourceMappings = this.mappings[source.id]; // 여기서 sourceMappings 안에는 항상 Length 만 적용되어있다.
+      const { toMeasurementSchema } = sourceMappings.find(mapping => {
+        // console.log(mapping.definition); // 이 과정에서 항상 mapping은 length를 출력할 수 밖에 없어서 Warning 이 지속적으로 뜬다.
+        // console.log(definition);
+        return mapping.definition === definition;
+      });
 
       /* Convert measurement */
-      measurement = toMeasurementSchema(sourceMeasurement);
-
+      console.log(sourceMeasurement);
+      measurement = toMeasurementSchema(sourceMeasurement); // Angle 에서는 안됨.
       /* Assign measurement source instance */
       measurement.source = source;
     } catch (error) {
       log.warn(
-        `Failed to map '${sourceInfo}' measurement for definition ${definition}:`,
+        `Failed to map '${sourceInfo}' measurement for definition ${definition}: `,
         error.message
       );
       return;

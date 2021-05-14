@@ -5,7 +5,6 @@ import cornerstoneTools from 'cornerstone-tools';
 import OHIF from '@ohif/core';
 
 const { log } = OHIF;
-
 export default function(configuration = {}) {
   // For debugging
   window.cornerstoneTools = cornerstoneTools;

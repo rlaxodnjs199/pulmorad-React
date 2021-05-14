@@ -1,7 +1,7 @@
 {
-  "name": "Pulmorad",
-  "short_name": "Pulmorad",
-  "description": "Pulmorad",
+  "name": "OHIF Viewer",
+  "short_name": "Viewer",
+  "description": "OHIF Viewer",
   "dir": "auto",
   "lang": "en-US",
   "orientation": "any",

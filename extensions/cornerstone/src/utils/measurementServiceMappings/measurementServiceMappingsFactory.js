@@ -110,6 +110,9 @@ const measurementServiceMappingsFactory = measurementService => {
       ArrowAnnotate: POINT,
     };
 
+    console.log('*********************************');
+    console.log(TOOL_TYPE_TO_VALUE_TYPE);
+
     return TOOL_TYPE_TO_VALUE_TYPE[toolType];
   };
 

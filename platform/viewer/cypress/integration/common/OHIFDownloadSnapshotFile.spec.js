@@ -3,7 +3,7 @@ describe('OHIF Download Snapshot File', () => {
     cy.checkStudyRouteInViewer(
       '1.2.840.113619.2.5.1762583153.215519.978957063.78'
     );
-    cy.expectMinimumThumbnails(5);
+    cy.expectMinimumThumbnails(3);
   });
 
   beforeEach(() => {
@@ -78,7 +78,7 @@ describe('OHIF Download Snapshot File', () => {
     cy.get('[data-cy=file-type]').should('have.value', 'jpg');
   });
 
-  // TO-DO once issue is fixed: https://github.com/OHIF/Viewers/issues/1217
+  // TO-DO once issue is fixed: https://github.com/donghakang/ohif-v2/issues/1217
   // it('checks error messages for empty fields', function() {
   //   //Clear fields Image Width and Filename
   //   cy.get('[data-cy="image-width"]')

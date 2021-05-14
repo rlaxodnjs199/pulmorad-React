@@ -12,7 +12,6 @@ const WrapperI18n = Component => {
       <Component {...props} />
     </I18nextProvider>
   );
-
   return WrapperComponent;
 };
 

@@ -22,7 +22,7 @@ const commandsModule = ({ servicesManager }) => {
   const actions = {
     rotateViewport: ({ viewports, rotation }) => {
       const enabledElement = getEnabledElement(viewports.activeViewportIndex);
-
+      console.log(enabledElement);
       if (enabledElement) {
         let viewport = cornerstone.getViewport(enabledElement);
         viewport.rotation += rotation;
@@ -73,6 +73,7 @@ const commandsModule = ({ servicesManager }) => {
 
       if (enabledElement) {
         let viewport = cornerstone.getViewport(enabledElement);
+        // console.log(viewport.voi);
         viewport.invert = !viewport.invert;
         cornerstone.setViewport(enabledElement, viewport);
       }

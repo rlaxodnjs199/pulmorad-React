@@ -15,6 +15,8 @@ import './ToolbarRow.css';
 import { commandsManager, extensionManager } from './../App.js';
 
 import ConnectedCineDialog from './ConnectedCineDialog';
+import ConnectedThresholdDialog from './ConnectedThresholdDialog';
+
 import ConnectedLayoutButton from './ConnectedLayoutButton';
 import { withAppContext } from '../context/AppContext';
 
@@ -86,7 +88,7 @@ class ToolbarRow extends Component {
         // Note: This does not cleanly handle `studies` prop updating with panel open
         const isDisabled =
           typeof menuOption.isDisabled === 'function' &&
-          menuOption.isDisabled(this.props.studies);
+          menuOption.isDisabled(this.props.studies, this.props.activeViewport);
 
         if (hasActiveContext && !isDisabled) {
           const menuOptionEntry = {
@@ -114,25 +116,30 @@ class ToolbarRow extends Component {
       prevProps.activeContexts !== this.props.activeContexts;
 
     const prevStudies = prevProps.studies;
+    const prevActiveViewport = prevProps.activeViewport;
+    const activeViewport = this.props.activeViewport;
     const studies = this.props.studies;
     const seriesPerStudyCount = this.seriesPerStudyCount;
 
-    let studiesUpdated = false;
+    let shouldUpdate = false;
 
-    if (prevStudies.length !== studies.length) {
-      studiesUpdated = true;
+    if (
+      prevStudies.length !== studies.length ||
+      prevActiveViewport !== activeViewport
+    ) {
+      shouldUpdate = true;
     } else {
       for (let i = 0; i < studies.length; i++) {
         if (studies[i].series.length !== seriesPerStudyCount[i]) {
           seriesPerStudyCount[i] = studies[i].series.length;
 
-          studiesUpdated = true;
+          shouldUpdate = true;
           break;
         }
       }
     }
 
-    if (studiesUpdated) {
+    if (shouldUpdate) {
       this.updateButtonGroups();
     }
 
@@ -253,6 +260,7 @@ function _getExpandableButtonComponent(button, activeButtons) {
   );
 }
 
+// 버튼 셋업,
 function _getDefaultButtonComponent(button, activeButtons) {
   return (
     <ToolbarButton
@@ -275,6 +283,7 @@ function _getButtonComponents(toolbarButtons, activeButtons) {
     const hasNestedButtonDefinitions = button.buttons && button.buttons.length;
 
     if (hasCustomComponent) {
+      // console.log('custom button: ', button.label);    --> 2D MPR
       return _getCustomButtonComponent.call(_this, button, activeButtons);
     }
 
@@ -303,7 +312,7 @@ function _handleToolbarButtonClick(button, evt, props) {
 
   if (button.commandName) {
     const options = Object.assign({ evt }, button.commandOptions);
-    commandsManager.runCommand(button.commandName, options);
+    commandsManager.runCommand(button.commandName, options); // changes the stae of command and run
   }
 
   // TODO: Use Types ENUM
@@ -362,6 +371,34 @@ function _handleBuiltIn(button) {
         .getBoundingClientRect();
       const newDialogId = dialog.create({
         content: ConnectedCineDialog,
+        defaultPosition: {
+          x: x + spacing || 0,
+          y: y + spacing || 0,
+        },
+      });
+      this.setState(state => ({
+        dialogId: newDialogId,
+        activeButtons: [...state.activeButtons, button],
+      }));
+    }
+  }
+
+  if (options.behavior === 'THRESHOLD') {
+    if (dialogId) {
+      dialog.dismiss({ id: dialogId });
+      this.setState(state => ({
+        dialogId: null,
+        activeButtons: [
+          ...state.activeButtons.filter(button => button.id !== id),
+        ],
+      }));
+    } else {
+      const spacing = 20;
+      const { x, y } = document
+        .querySelector(`.ViewerMain`)
+        .getBoundingClientRect();
+      const newDialogId = dialog.create({
+        content: ConnectedThresholdDialog,
         defaultPosition: {
           x: x + spacing || 0,
           y: y + spacing || 0,

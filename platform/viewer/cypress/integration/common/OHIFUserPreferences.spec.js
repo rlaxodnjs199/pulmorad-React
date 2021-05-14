@@ -184,7 +184,7 @@ describe('OHIF User Preferences', () => {
       cy.checkStudyRouteInViewer(
         '1.2.840.113619.2.5.1762583153.215519.978957063.78'
       );
-      cy.expectMinimumThumbnails(5);
+      cy.expectMinimumThumbnails(3);
       cy.initCommonElementsAliases();
 
       // Check if application is in Spanish
@@ -217,7 +217,7 @@ describe('OHIF User Preferences', () => {
       cy.checkStudyRouteInViewer(
         '1.2.840.113619.2.5.1762583153.215519.978957063.78'
       );
-      cy.expectMinimumThumbnails(5);
+      cy.expectMinimumThumbnails(3);
     });
 
     beforeEach(() => {
@@ -583,7 +583,7 @@ describe('OHIF User Preferences', () => {
       cy.checkStudyRouteInViewer(
         '1.2.840.113619.2.5.1762583153.215519.978957063.78'
       );
-      cy.expectMinimumThumbnails(5);
+      cy.expectMinimumThumbnails(3);
     });
 
     beforeEach(() => {
@@ -609,7 +609,7 @@ describe('OHIF User Preferences', () => {
         .should('be.greaterThan', 1);
     });
 
-    // //TODO: Test blocked by issue #1551: https://github.com/OHIF/Viewers/issues/1551
+    // //TODO: Test blocked by issue #1551: https://github.com/donghakang/ohif-v2/issues/1551
     // it('checks if user can add a new W/L preset', function() {
     //   let description = ':nth-child(8) > .description > .preferencesInput';
     //   let window = ':nth-child(8) > .window > .preferencesInput';
@@ -681,7 +681,7 @@ describe('OHIF User Preferences', () => {
       cy.get('[data-cy="close-button"]').click();
     });
 
-    // //TODO: Test blocked by issue #1551: https://github.com/OHIF/Viewers/issues/1551
+    // //TODO: Test blocked by issue #1551: https://github.com/donghakang/ohif-v2/issues/1551
     // it('checks if user can edit an existing W/L preset', function() {
     //   let description = ':nth-child(2) > .description > .preferencesInput';
     //   let window = ':nth-child(2) > .window > .preferencesInput';

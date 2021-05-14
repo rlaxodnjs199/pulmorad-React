@@ -10,6 +10,9 @@ import _values from 'lodash/values';
 var values = memoize(_values);
 
 class ViewerMain extends Component {
+  componentDidMount() {
+    console.log('Viewer Main');
+  }
   static propTypes = {
     activeViewportIndex: PropTypes.number.isRequired,
     studies: PropTypes.array,
